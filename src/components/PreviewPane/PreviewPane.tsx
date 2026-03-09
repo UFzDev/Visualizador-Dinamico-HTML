@@ -56,17 +56,16 @@ export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
                   var cs = window.getComputedStyle(el);
                   if (cs.position === 'fixed') {
                     var id = 'h2c_fix_' + i;
+                    // CAPTURAMOS LA POSICIÓN REAL EN PANTALLA
+                    var rect = el.getBoundingClientRect(); 
                     el.setAttribute('data-h2c-id', id);
                     markedEls.push(el);
                     
-                    // Guardar TODAS las propiedades de posicionamiento para replicar
                     fixedData[id] = {
-                      top: cs.top,
-                      bottom: cs.bottom,
-                      left: cs.left,
-                      right: cs.right,
-                      width: cs.width,
-                      height: cs.height,
+                      top: rect.top, // Usamos la distancia desde el techo
+                      left: rect.left, // Usamos la distancia desde la izquierda
+                      width: rect.width,
+                      height: rect.height,
                       zIndex: cs.zIndex,
                       display: cs.display
                     };
@@ -102,19 +101,20 @@ export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
                       if (data) {
                         cEl.style.setProperty('position', 'absolute', 'important');
                         
-                        // Aplicar propiedades originales. html2canvas respetará el anclaje 
-                        // si el body del clon tiene el tamaño correcto.
-                        cEl.style.setProperty('top', data.top, 'important');
-                        cEl.style.setProperty('bottom', data.bottom, 'important');
-                        cEl.style.setProperty('left', data.left, 'important');
-                        cEl.style.setProperty('right', data.right, 'important');
-                        cEl.style.setProperty('width', data.width, 'important');
-                        cEl.style.setProperty('height', data.height, 'important');
+                        // FORZAMOS LA POSICIÓN POR ARRIBA (TOP) PARA "CONGELARLO"
+                        cEl.style.setProperty('top', data.top + 'px', 'important');
+                        cEl.style.setProperty('left', data.left + 'px', 'important');
+                        
+                        // ANULAMOS EL BOTTOM/RIGHT PARA QUE NO HAGAN CONFLICTO
+                        cEl.style.setProperty('bottom', 'auto', 'important');
+                        cEl.style.setProperty('right', 'auto', 'important');
+                        
+                        cEl.style.setProperty('width', data.width + 'px', 'important');
+                        cEl.style.setProperty('height', data.height + 'px', 'important');
                         cEl.style.setProperty('z-index', data.zIndex, 'important');
                         cEl.style.setProperty('margin', '0', 'important');
                         cEl.style.setProperty('transform', 'none', 'important');
                         
-                        // Mover al body principal para escapar de cualquier stacking context roto
                         if (cEl.parentNode !== clonedDoc.body) {
                           clonedDoc.body.appendChild(cEl);
                         }
