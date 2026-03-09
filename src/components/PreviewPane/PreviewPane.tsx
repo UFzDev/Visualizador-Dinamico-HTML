@@ -47,10 +47,10 @@ export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
                 if (typeof html2canvas === 'undefined') throw new Error('html2canvas no se cargó.');
                 
                 var allEls = document.querySelectorAll('*');
-                var fixedRects = {};
+                var fixedData = {};
                 var markedEls = [];
                 
-                // Mapeo PRE-render: guardar boundingClient de todo elemento fixed
+                // Mapeo PRE-render: guardar estilos computados de todo elemento fixed
                 for (var i = 0; i < allEls.length; i++) {
                   var el = allEls[i];
                   var cs = window.getComputedStyle(el);
@@ -58,7 +58,18 @@ export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
                     var id = 'h2c_fix_' + i;
                     el.setAttribute('data-h2c-id', id);
                     markedEls.push(el);
-                    fixedRects[id] = el.getBoundingClientRect();
+                    
+                    // Guardar TODAS las propiedades de posicionamiento para replicar
+                    fixedData[id] = {
+                      top: cs.top,
+                      bottom: cs.bottom,
+                      left: cs.left,
+                      right: cs.right,
+                      width: cs.width,
+                      height: cs.height,
+                      zIndex: cs.zIndex,
+                      display: cs.display
+                    };
                   }
                 }
                 
@@ -74,29 +85,39 @@ export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
                   scrollY: 0,
                   backgroundColor: null,
                   onclone: function(clonedDoc) {
-                    // Global fixes
-                    var s = clonedDoc.createElement('style');
-                    s.textContent = '* { box-sizing: border-box !important; }';
-                    clonedDoc.head.appendChild(s);
-                    
-                    // Hacer body relativo asegura que "absolute" coordene a (0,0) del viewport simulado
+                    // Forzar dimensiones del viewport en el clon para que bottom/right funcionen
+                    clonedDoc.documentElement.style.setProperty('width', width + 'px', 'important');
+                    clonedDoc.documentElement.style.setProperty('height', height + 'px', 'important');
+                    clonedDoc.body.style.setProperty('width', width + 'px', 'important');
+                    clonedDoc.body.style.setProperty('height', height + 'px', 'important');
+                    clonedDoc.body.style.setProperty('margin', '0', 'important');
+                    clonedDoc.body.style.setProperty('padding', '0', 'important');
                     clonedDoc.body.style.setProperty('position', 'relative', 'important');
-                    
-                    // Restaurar los elementos marked a "absolute" con sus medidas PRE-render exactas
+                    clonedDoc.body.style.setProperty('overflow', 'hidden', 'important');
+
                     var clonedFixed = clonedDoc.querySelectorAll('[data-h2c-id]');
                     for (var j = 0; j < clonedFixed.length; j++) {
                       var cEl = clonedFixed[j];
-                      var rect = fixedRects[cEl.getAttribute('data-h2c-id')];
-                      if (rect) {
+                      var data = fixedData[cEl.getAttribute('data-h2c-id')];
+                      if (data) {
                         cEl.style.setProperty('position', 'absolute', 'important');
-                        cEl.style.setProperty('top', rect.top + 'px', 'important');
-                        cEl.style.setProperty('left', rect.left + 'px', 'important');
-                        cEl.style.setProperty('width', rect.width + 'px', 'important');
-                        cEl.style.setProperty('height', rect.height + 'px', 'important');
-                        cEl.style.setProperty('bottom', 'auto', 'important');
-                        cEl.style.setProperty('right', 'auto', 'important');
+                        
+                        // Aplicar propiedades originales. html2canvas respetará el anclaje 
+                        // si el body del clon tiene el tamaño correcto.
+                        cEl.style.setProperty('top', data.top, 'important');
+                        cEl.style.setProperty('bottom', data.bottom, 'important');
+                        cEl.style.setProperty('left', data.left, 'important');
+                        cEl.style.setProperty('right', data.right, 'important');
+                        cEl.style.setProperty('width', data.width, 'important');
+                        cEl.style.setProperty('height', data.height, 'important');
+                        cEl.style.setProperty('z-index', data.zIndex, 'important');
                         cEl.style.setProperty('margin', '0', 'important');
                         cEl.style.setProperty('transform', 'none', 'important');
+                        
+                        // Mover al body principal para escapar de cualquier stacking context roto
+                        if (cEl.parentNode !== clonedDoc.body) {
+                          clonedDoc.body.appendChild(cEl);
+                        }
                       }
                     }
                   }
@@ -122,27 +143,6 @@ export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
         }
       });
     </script>
-                window.parent.postMessage({ type: 'EXPORT_ERROR', error: err.toString() }, '*');
-              }
-            }, 1000); 
-          });
-        }
-      });
-    </script>
-    <style>
-      /* Normalize body to prevent unexpected scrolls or margins during export */
-      html, body {
-        width: ${width}px !important;
-        height: ${height}px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
-      }
-      ::-webkit-scrollbar {
-        display: none !important;
-      }
-    </style>
   `;
 
     const srcDoc = htmlContent + injectedLogic;
