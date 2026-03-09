@@ -20,7 +20,8 @@ export default async function handler(
 ): Promise<void> {
   // Solo permitir POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
 
   try {
@@ -28,22 +29,23 @@ export default async function handler(
 
     // Validación de parámetros
     if (!html || !width || !height || !['png', 'jpg'].includes(format)) {
-      return res.status(400).json({ error: 'Invalid parameters' });
+      res.status(400).json({ error: 'Invalid parameters' });
+      return;
     }
 
     // Validar tamaños razonables (evitar timeouts)
     if (width > 4096 || height > 4096) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Dimensions too large. Maximum: 4096x4096' 
       });
+      return;
     }
 
     // Lanzar Puppeteer con Chromium optimizado para Vercel
     const browser = await puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      headless: true,
     });
 
     try {
@@ -100,24 +102,26 @@ export default async function handler(
       });
 
       // Convertir a base64
-      const base64 = buffer.toString('base64');
+      const base64 = Buffer.from(buffer).toString('base64');
       const dataUrl = `data:image/${format === 'jpg' ? 'jpeg' : 'png'};base64,${base64}`;
 
       await page.close();
 
-      return res.status(200).json({ 
+      res.status(200).json({ 
         success: true, 
         dataUrl 
       });
+      return;
     } finally {
       await browser.close();
     }
   } catch (error: any) {
     console.error('[Export API] Error:', error.message);
     
-    return res.status(500).json({ 
+    res.status(500).json({ 
       error: error.message || 'Internal server error',
       success: false 
     });
+    return;
   }
 }

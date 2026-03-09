@@ -3,8 +3,9 @@ import { CodeEditor } from './components/CodeEditor/CodeEditor';
 import { PreviewPane } from './components/PreviewPane/PreviewPane';
 import { Toolbar } from './components/Toolbar/Toolbar';
 import { RESOLUTIONS } from './constants/resolutions';
-import { triggerIframeExport } from './utils/exportService';
 import { DEFAULT_HTML } from './constants/defaultHtml';
+import { createExportUseCase } from './shared/di/exportComposition';
+import type { ExportFormat } from './domain/export/ExportFormat';
 import './App.css';
 
 function App() {
@@ -16,13 +17,22 @@ function App() {
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const handleExport = useCallback(async (format: 'png' | 'jpg' | 'pdf') => {
+  const handleExport = useCallback(async (format: ExportFormat) => {
     if (!iframeRef.current) return;
 
     try {
       setError(null);
       setIsExporting(true);
-      await triggerIframeExport(iframeRef.current, format, width, height);
+      
+      // Obtener HTML del iframe
+      const htmlContent = iframeRef.current.srcdoc;
+      if (!htmlContent) {
+        throw new Error('No HTML content found in iframe');
+      }
+
+      // Usar caso de uso de la arquitectura hexagonal
+      const exportUseCase = createExportUseCase(width, height, format);
+      await exportUseCase.execute(htmlContent, width, height, format);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error occurred';
       console.error('[App] Export error:', err);
