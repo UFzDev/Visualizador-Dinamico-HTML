@@ -65,7 +65,7 @@ export const triggerIframeExport = async (
 /**
  * Descarga el archivo exportado
  */
-function downloadFile(dataUrl: string, format: string, width: number, height: number): void {
+function downloadFile(dataUrl: string, format: 'png' | 'jpg' | 'pdf', width: number, height: number): void {
   if (format === 'pdf') {
     generatePDF(dataUrl, width, height);
   } else {

@@ -37,7 +37,7 @@ function App() {
     setHeight(h);
   }, []);
 
-  const handleHtmlChange = useCallback((val: string | null) => {
+  const handleHtmlChange = useCallback((val: string | undefined) => {
     setHtmlContent(val || '');
   }, []);
 

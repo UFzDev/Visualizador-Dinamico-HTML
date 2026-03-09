@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import puppeteer from 'puppeteer';
 import type { IncomingMessage, ServerResponse } from 'http';
+import type { Plugin, ViteDevServer } from 'vite';
 
 // Singleton para la instancia del navegador
 let browserInstance: any = null;
@@ -20,13 +21,12 @@ async function getBrowser() {
  * Plugin personalizado que maneja el endpoint /api/export
  * Utiliza Puppeteer para renderizar HTML a screenshot exacto
  */
-function exportApiPlugin() {
+function exportApiPlugin(): Plugin {
   return {
     name: 'export-api-plugin',
     apply: 'serve',
-    configureServer(server: any) {
-      return () => {
-        server.middlewares.use('/api/export', async (req: IncomingMessage, res: ServerResponse) => {
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use('/api/export', async (req: IncomingMessage, res: ServerResponse) => {
           if (req.method !== 'POST') {
             res.writeHead(405, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Method not allowed' }));
@@ -75,10 +75,13 @@ function exportApiPlugin() {
 
                 // Esperar a que todas las imágenes carguen
                 await page.evaluate(() => {
+                  const doc = (globalThis as any).document;
+                  const images = Array.from(doc?.images ?? []) as any[];
+
                   return Promise.all(
-                    Array.from(document.images)
-                      .filter((img: any) => !img.complete)
-                      .map((img: any) => {
+                    images
+                      .filter((img) => !img.complete)
+                      .map((img) => {
                         return new Promise((resolve) => {
                           img.onload = resolve;
                           img.onerror = resolve;
@@ -114,7 +117,6 @@ function exportApiPlugin() {
             }
           });
         });
-      };
     }
   };
 }

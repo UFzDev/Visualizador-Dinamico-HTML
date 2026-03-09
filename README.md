@@ -29,7 +29,26 @@ Una herramienta de desarrollo web en tiempo real construida con **React**, **Typ
    ```
    La aplicación correrá típicamente en `http://localhost:5173`.
 
-## 💡 Motivación de Arquitectura
+## � Deployment
+
+### Vercel (Recomendado)
+
+Este proyecto está optimizado para Vercel con Puppeteer pixel-perfect:
+
+```bash
+npm install -g vercel
+vercel --prod
+```
+
+**Características en producción**:
+- ✅ Serverless Functions con `@sparticuz/chromium` optimizado
+- ✅ Exportación pixel-perfect sin limitaciones de `html2canvas`
+- ✅ Auto-scaling y edge deployment global
+- ⚡ Plan Free: 10s timeout | Plan Pro: 60s timeout
+
+Para más detalles, consulta [DEPLOY.md](./DEPLOY.md).
+
+## �💡 Motivación de Arquitectura
 
 El foco principal de esta refactorización fue **estabilizar la exportación de layouts modernos**. 
 
