@@ -1,5 +1,3 @@
-import type { ExportFormat } from './ExportFormat';
-
 /**
  * Dominio: Solicitud de exportación
  */
@@ -7,30 +5,69 @@ export interface ExportRequest {
   readonly html: string;
   readonly width: number;
   readonly height: number;
-  readonly format: ExportFormat;
 }
+
+type ExportRequestInput = {
+  html: unknown;
+  width: unknown;
+  height: unknown;
+};
+
+export type ValidationResult =
+  | { valid: true }
+  | { valid: false; error: string };
 
 /**
  * Dominio: Resultado de exportación
  */
 export interface ExportResult {
   readonly success: boolean;
-  readonly dataUrl?: string;
+  readonly fileUrl?: string;
   readonly error?: string;
+}
+
+/**
+ * Normaliza un payload externo a ExportRequest.
+ * Retorna null cuando faltan campos requeridos.
+ */
+export function normalizeExportRequest(payload: unknown): ExportRequest | null {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+
+  const { html, width, height } = payload as ExportRequestInput;
+  if (html === undefined || width === undefined || height === undefined) {
+    return null;
+  }
+
+  return {
+    html: String(html),
+    width: Number(width),
+    height: Number(height),
+  };
 }
 
 /**
  * Validaciones de dominio
  */
 export class ExportRequestValidator {
+  private static readonly MIN_DIMENSION = 1;
   private static readonly MAX_DIMENSION = 4096;
 
-  static validate(request: ExportRequest): { valid: boolean; error?: string } {
+  static validate(request: ExportRequest): ValidationResult {
     if (!request.html || request.html.trim() === '') {
       return { valid: false, error: 'HTML content is required' };
     }
 
-    if (request.width <= 0 || request.height <= 0) {
+    if (!Number.isFinite(request.width) || !Number.isFinite(request.height)) {
+      return { valid: false, error: 'Width and height must be valid numbers' };
+    }
+
+    if (!Number.isInteger(request.width) || !Number.isInteger(request.height)) {
+      return { valid: false, error: 'Width and height must be integers' };
+    }
+
+    if (request.width < this.MIN_DIMENSION || request.height < this.MIN_DIMENSION) {
       return { valid: false, error: 'Width and height must be positive' };
     }
 

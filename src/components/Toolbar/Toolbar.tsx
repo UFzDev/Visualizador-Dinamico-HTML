@@ -7,7 +7,7 @@ interface ToolbarProps {
     width: number;
     height: number;
     onDimensionChange: (width: number, height: number) => void;
-    onExport: (format: 'png' | 'jpg' | 'pdf') => void;
+    onExport: () => void;
 }
 
 export const Toolbar: FC<ToolbarProps> = ({
@@ -16,7 +16,11 @@ export const Toolbar: FC<ToolbarProps> = ({
     onDimensionChange,
     onExport
 }) => {
-    const [isCustom, setIsCustom] = useState(false);
+    const resolutionOptions = RESOLUTIONS.length > 0
+        ? RESOLUTIONS
+        : [{ label: 'Custom...', width: 0, height: 0 }];
+    const defaultPreset = resolutionOptions.find((resolution) => resolution.width > 0)?.label ?? 'custom';
+    const [isCustom, setIsCustom] = useState(defaultPreset === 'custom');
 
     const handlePresetChange = (e: ChangeEvent<HTMLSelectElement>) => {
         const val = e.target.value;
@@ -32,8 +36,8 @@ export const Toolbar: FC<ToolbarProps> = ({
     return (
         <div className="toolbar">
             <div className="toolbar-group">
-                <select className="select-input" onChange={handlePresetChange} defaultValue={RESOLUTIONS[2].label}>
-                    {RESOLUTIONS.map(res => (
+                <select className="select-input" onChange={handlePresetChange} defaultValue={defaultPreset}>
+                    {resolutionOptions.map(res => (
                         <option key={res.label} value={res.width === 0 ? 'custom' : res.label}>
                             {res.label}
                         </option>
@@ -64,14 +68,8 @@ export const Toolbar: FC<ToolbarProps> = ({
             </div>
 
             <div className="toolbar-group">
-                <button className="button button-secondary" onClick={() => onExport('png')}>
+                <button className="button button-primary" onClick={onExport}>
                     Export PNG
-                </button>
-                <button className="button button-secondary" onClick={() => onExport('jpg')}>
-                    Export JPG
-                </button>
-                <button className="button button-primary" onClick={() => onExport('pdf')}>
-                    Export PDF
                 </button>
             </div>
         </div>

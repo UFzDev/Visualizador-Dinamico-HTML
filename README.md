@@ -4,11 +4,7 @@ Una herramienta de desarrollo web en tiempo real construida con **React**, **Typ
 
 ## 🚀 Características Principales
 
-- **Renderizado en Tiempo Real**: Editor Monaco integrado con preview instantáneo en iframe aislado
-- **Manejo de Resoluciones**: Simulación de dispositivos (iPhone 14 Pro, iPad Air, etc.) con resoluciones exactas y soporte manual
-- **Exportación Pixel-Perfect**: Puppeteer serverless en Vercel para capturas precisas (PNG/JPG/PDF) sin limitaciones de `html2canvas`
-- **Entorno Seguro**: Sandboxing completo vía iframe, protegiendo la app de conflictos CSS/JS
-- **Tailwind CSS Optimizado**: CDN integrado para renderizado inmediato de clases utilitarias
+- **Exportación Pixel-Perfect**: Puppeteer serverless en Vercel para capturas precisas (PNG) sin limitaciones de `html2canvas`
 - **Arquitectura Hexagonal**: Domain-driven design con separación clara de responsabilidades
 
 ## 🛠️ Stack Tecnológico
@@ -18,7 +14,6 @@ Una herramienta de desarrollo web en tiempo real construida con **React**, **Typ
 - **Monaco Editor** (VS Code engine)
 - **Radix UI** (primitivas accesibles)
 - **Lucide React** (iconografía)
-- **jsPDF 4.2.0** (generación PDF)
 
 ### Backend
 - **Vercel Serverless Functions**
@@ -32,7 +27,6 @@ Este proyecto sigue el patrón **Ports & Adapters** para mantener la lógica de 
 src/
 ├── domain/              # Núcleo del negocio (reglas, validaciones)
 │   └── export/
-│       ├── ExportFormat.ts       # Tipos de dominio
 │       ├── ExportRequest.ts      # Entidades y validaciones
 │       └── ExportPort.ts         # Puertos (interfaces)
 │
@@ -40,11 +34,10 @@ src/
 │   └── export/
 │       └── ExportHtmlUseCase.ts  # Lógica de exportación
 │
-├── infrastructure/      # Detalles técnicos (HTTP, PDF, DOM)
+├── infrastructure/      # Detalles técnicos (HTTP, DOM)
 │   └── export/
 │       ├── HttpExportAdapter.ts        # Fetch a /api/export
-│       ├── BrowserDownloadAdapter.ts   # Descarga PNG/JPG
-│       └── PdfDownloadAdapter.ts       # Generación PDF
+│       ├── BrowserDownloadAdapter.ts   # Descarga PNG
 │
 ├── shared/
 │   └── di/
@@ -59,7 +52,7 @@ src/
 Usuario → App.tsx → ExportHtmlUseCase
                     ├── Valida: ExportRequestValidator
                     ├── Exporta: HttpExportAdapter → /api/export (Puppeteer)
-                    └── Descarga: BrowserDownloadAdapter | PdfDownloadAdapter
+                    └── Descarga: BrowserDownloadAdapter
 ```
 
 **Beneficios**:
@@ -198,8 +191,6 @@ export class SvgDownloadAdapter implements DownloadPort {
 // 2. Actualizar DI en exportComposition.ts
 const downloadAdapter = format === 'svg'
   ? new SvgDownloadAdapter()
-  : format === 'pdf'
-  ? new PdfDownloadAdapter(width, height)
   : new BrowserDownloadAdapter();
 ```
 

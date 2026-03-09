@@ -1,4 +1,5 @@
-import { forwardRef } from 'react';
+import { forwardRef, useMemo } from 'react';
+import type { CSSProperties } from 'react';
 import './PreviewPane.css';
 
 interface PreviewPaneProps {
@@ -9,20 +10,18 @@ interface PreviewPaneProps {
 
 export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
   ({ htmlContent, width, height }, ref) => {
-    // El HTML se muestra directamente en el iframe sin scripts inyectados
-    // La exportación se maneja por Puppeteer en el servidor
-    const srcDoc = htmlContent;
+    const previewSize = useMemo<CSSProperties>(
+      () => ({ width: `${width}px`, height: `${height}px` }),
+      [width, height]
+    );
 
     return (
       <div className="preview-panel">
-        <div
-          className="preview-container"
-          style={{ width: `${width}px`, height: `${height}px` }}
-        >
+        <div className="preview-container" style={previewSize}>
           <iframe
             ref={ref}
             title="Preview HTML"
-            srcDoc={srcDoc}
+            srcDoc={htmlContent}
             className="preview-iframe"
             sandbox="allow-scripts allow-same-origin"
           />

@@ -1,7 +1,11 @@
-import type { ExportPort, DownloadPort } from '../../domain/export/ExportPort';
-import type { ExportRequest } from '../../domain/export/ExportRequest';
-import type { ExportFormat } from '../../domain/export/ExportFormat';
-import { ExportRequestValidator } from '../../domain/export/ExportRequest';
+import {
+  ExportExecutionError,
+  ExportRequestValidator,
+  ExportValidationError,
+  type DownloadPort,
+  type ExportPort,
+  type ExportRequest,
+} from '../../domain/export';
 
 /**
  * Caso de Uso: Exportar HTML a archivo
@@ -24,33 +28,31 @@ export class ExportHtmlUseCase {
   async execute(
     html: string,
     width: number,
-    height: number,
-    format: ExportFormat
+    height: number
   ): Promise<void> {
     // 1. Crear solicitud de exportación
     const request: ExportRequest = {
       html,
       width,
       height,
-      format,
     };
 
     // 2. Validar solicitud (regla de dominio)
     const validation = ExportRequestValidator.validate(request);
     if (!validation.valid) {
-      throw new Error(validation.error);
+      throw new ExportValidationError(validation.error);
     }
 
     // 3. Ejecutar exportación a través del puerto
     const result = await this.exportAdapter.export(request);
 
     // 4. Verificar resultado
-    if (!result.success || !result.dataUrl) {
-      throw new Error(result.error || 'Export failed: no data URL received');
+    if (!result.success || !result.fileUrl) {
+      throw new ExportExecutionError(result.error || 'Export failed: no file URL received');
     }
 
     // 5. Descargar archivo
-    const filename = `export.${format}`;
-    this.downloadAdapter.download(result.dataUrl, filename);
+    const filename = 'export.png';
+    this.downloadAdapter.download(result.fileUrl, filename);
   }
 }

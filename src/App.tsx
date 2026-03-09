@@ -5,19 +5,22 @@ import { Toolbar } from './components/Toolbar/Toolbar';
 import { RESOLUTIONS } from './constants/resolutions';
 import { DEFAULT_HTML } from './constants/defaultHtml';
 import { createExportUseCase } from './shared/di/exportComposition';
-import type { ExportFormat } from './domain/export/ExportFormat';
 import './App.css';
 
+const DEFAULT_WIDTH = 390;
+const DEFAULT_HEIGHT = 844;
+
 function App() {
+  const initialResolution = RESOLUTIONS.find((resolution) => resolution.width > 0 && resolution.height > 0);
   const [htmlContent, setHtmlContent] = useState<string>(DEFAULT_HTML);
-  const [width, setWidth] = useState<number>(RESOLUTIONS[0].width);
-  const [height, setHeight] = useState<number>(RESOLUTIONS[0].height);
+  const [width, setWidth] = useState<number>(initialResolution?.width ?? DEFAULT_WIDTH);
+  const [height, setHeight] = useState<number>(initialResolution?.height ?? DEFAULT_HEIGHT);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const handleExport = useCallback(async (format: ExportFormat) => {
+  const handleExport = useCallback(async () => {
     if (!iframeRef.current) return;
 
     try {
@@ -31,8 +34,8 @@ function App() {
       }
 
       // Usar caso de uso de la arquitectura hexagonal
-      const exportUseCase = createExportUseCase(width, height, format);
-      await exportUseCase.execute(htmlContent, width, height, format);
+      const exportUseCase = createExportUseCase();
+      await exportUseCase.execute(htmlContent, width, height);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error occurred';
       console.error('[App] Export error:', err);
@@ -47,8 +50,8 @@ function App() {
     setHeight(h);
   }, []);
 
-  const handleHtmlChange = useCallback((val: string | undefined) => {
-    setHtmlContent(val || '');
+  const handleHtmlChange = useCallback((val: string) => {
+    setHtmlContent(val);
   }, []);
 
   return (

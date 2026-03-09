@@ -7,7 +7,7 @@ import type { ExportRequest, ExportResult } from './ExportRequest';
  */
 export interface ExportPort {
   /**
-   * Exporta HTML a imagen/PDF
+   * Exporta HTML a imagen PNG
    */
   export(request: ExportRequest): Promise<ExportResult>;
 }
@@ -17,7 +17,7 @@ export interface ExportPort {
  */
 export interface DownloadPort {
   /**
-   * Descarga un archivo desde una URL de datos
+   * Descarga un archivo desde una URL local (blob/object URL)
    */
-  download(dataUrl: string, filename: string): void;
+  download(fileUrl: string, filename: string): void;
 }

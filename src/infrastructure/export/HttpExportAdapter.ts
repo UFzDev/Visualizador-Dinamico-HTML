@@ -1,5 +1,4 @@
-import type { ExportPort } from '../../domain/export/ExportPort';
-import type { ExportRequest, ExportResult } from '../../domain/export/ExportRequest';
+import type { ExportPort, ExportRequest, ExportResult } from '../../domain/export';
 
 /**
  * Adapter de Infraestructura: Exportación vía HTTP
@@ -22,7 +21,6 @@ export class HttpExportAdapter implements ExportPort {
           html: request.html,
           width: request.width,
           height: request.height,
-          format: request.format,
         }),
       });
 
@@ -34,11 +32,19 @@ export class HttpExportAdapter implements ExportPort {
         };
       }
 
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('image/png')) {
+        return {
+          success: false,
+          error: `Unexpected response content-type: ${contentType || 'unknown'}`,
+        };
+      }
+
+      const imageBlob = await response.blob();
+      const fileUrl = URL.createObjectURL(imageBlob);
       return {
-        success: data.success ?? true,
-        dataUrl: data.dataUrl,
-        error: data.error,
+        success: true,
+        fileUrl,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';

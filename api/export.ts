@@ -1,18 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
+import { ExportRequestValidator, normalizeExportRequest } from '../src/domain/export';
 
 // Configuración optimizada para Vercel
 export const config = {
   maxDuration: 30, // 30 segundos máximo (Free tier: 10s, Pro: 60s)
 };
-
-interface ExportRequest {
-  html: string;
-  width: number;
-  height: number;
-  format: 'png' | 'jpg';
-}
 
 export default async function handler(
   req: VercelRequest,
@@ -25,19 +19,17 @@ export default async function handler(
   }
 
   try {
-    const { html, width, height, format } = req.body as ExportRequest;
+    const request = normalizeExportRequest(req.body);
 
     // Validación de parámetros
-    if (!html || !width || !height || !['png', 'jpg'].includes(format)) {
+    if (!request) {
       res.status(400).json({ error: 'Invalid parameters' });
       return;
     }
 
-    // Validar tamaños razonables (evitar timeouts)
-    if (width > 4096 || height > 4096) {
-      res.status(400).json({ 
-        error: 'Dimensions too large. Maximum: 4096x4096' 
-      });
+    const validation = ExportRequestValidator.validate(request);
+    if (!validation.valid) {
+      res.status(400).json({ error: validation.error });
       return;
     }
 
@@ -53,12 +45,12 @@ export default async function handler(
 
       // Configurar viewport
       await page.setViewport({
-        width: parseInt(String(width)),
-        height: parseInt(String(height)),
+        width: request.width,
+        height: request.height,
       });
 
       // Cargar contenido HTML
-      await page.setContent(html, {
+      await page.setContent(request.html, {
         waitUntil: 'networkidle2',
         timeout: 25000, // Dejar margen para el timeout de Vercel
       });
@@ -95,22 +87,16 @@ export default async function handler(
 
       // Capturar screenshot
       const buffer = await page.screenshot({
-        type: format === 'jpg' ? 'jpeg' : 'png',
-        quality: format === 'jpg' ? 100 : undefined,
+        type: 'png',
         fullPage: false,
         captureBeyondViewport: false,
       });
 
-      // Convertir a base64
-      const base64 = Buffer.from(buffer).toString('base64');
-      const dataUrl = `data:image/${format === 'jpg' ? 'jpeg' : 'png'};base64,${base64}`;
-
       await page.close();
 
-      res.status(200).json({ 
-        success: true, 
-        dataUrl 
-      });
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(200).send(buffer);
       return;
     } finally {
       await browser.close();

@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import puppeteer from 'puppeteer';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { Plugin, ViteDevServer } from 'vite';
+import { ExportRequestValidator, normalizeExportRequest } from './src/domain/export';
 
 // Singleton para la instancia del navegador
 let browserInstance: any = null;
@@ -41,12 +42,19 @@ function exportApiPlugin(): Plugin {
 
           req.on('end', async () => {
             try {
-              const { html, width, height, format } = JSON.parse(body);
+              const request = normalizeExportRequest(JSON.parse(body));
 
               // Validación de parámetros
-              if (!html || !width || !height || !['png', 'jpg'].includes(format)) {
+              if (!request) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Invalid parameters' }));
+                return;
+              }
+
+              const validation = ExportRequestValidator.validate(request);
+              if (!validation.valid) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: validation.error }));
                 return;
               }
 
@@ -56,12 +64,12 @@ function exportApiPlugin(): Plugin {
               try {
                 // Configurar viewport
                 await page.setViewport({
-                  width: parseInt(width),
-                  height: parseInt(height)
+                  width: request.width,
+                  height: request.height
                 });
 
                 // Cargar contenido HTML
-                await page.setContent(html, {
+                await page.setContent(request.html, {
                   waitUntil: 'networkidle2',
                   timeout: 30000
                 });
@@ -95,18 +103,16 @@ function exportApiPlugin(): Plugin {
 
                 // Capturar screenshot
                 const buffer = await page.screenshot({
-                  type: format === 'jpg' ? 'jpeg' : 'png',
-                  quality: format === 'jpg' ? 100 : undefined,
+                  type: 'png',
                   fullPage: false,
                   captureBeyondViewport: false
                 });
 
-                // Convertir a base64 y enviar respuesta
-                const base64 = buffer.toString('base64');
-                const dataUrl = `data:image/${format === 'jpg' ? 'jpeg' : 'png'};base64,${base64}`;
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: true, dataUrl }));
+                res.writeHead(200, {
+                  'Content-Type': 'image/png',
+                  'Cache-Control': 'no-store'
+                });
+                res.end(buffer);
               } finally {
                 await page.close();
               }
