@@ -1,156 +1,239 @@
 export const DEFAULT_HTML = `
 <!DOCTYPE html>
-
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>LuxeDining - Menu Exploration</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#ec5b13",
-                        "background-light": "#f8f6f6",
-                        "background-dark": "#221610",
-                    },
-                    fontFamily: {
-                        "display": ["Public Sans", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                },
-            },
-        }
-    </script>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visualizador HTML - Bienvenido</title>
 <style>
-        body {
-            font-family: 'Public Sans', sans-serif;
-        }
-        .ios-shadow {
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 15px -5px rgba(0, 0, 0, 0.05);
-        }
-    </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+  
+  header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 30px;
+    text-align: center;
+  }
+  
+  header h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  
+  header p {
+    opacity: 0.95;
+    font-size: 0.95em;
+  }
+  
+  .content {
+    padding: 40px 30px;
+  }
+  
+  .section {
+    margin-bottom: 35px;
+  }
+  
+  .section h2 {
+    color: #667eea;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+    display: inline-block;
+  }
+  
+  .section p {
+    color: #555;
+    margin-bottom: 10px;
+    line-height: 1.8;
+  }
+  
+  .feature-list {
+    list-style: none;
+    margin-top: 15px;
+  }
+  
+  .feature-list li {
+    padding: 12px 0;
+    padding-left: 30px;
+    position: relative;
+    color: #555;
+  }
+  
+  .feature-list li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  
+  .example-code {
+    background: #f5f5f5;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    overflow-x: auto;
+  }
+  
+  .tip-box {
+    background: #fffacd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 6px;
+    font-size: 0.95em;
+    color: #666;
+  }
+  
+  .tip-box strong {
+    color: #ff9800;
+  }
+  
+  footer {
+    background: #f8f9fa;
+    padding: 30px;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 480px) {
+    header {
+      padding: 30px 20px;
     }
-  </style>
+    
+    header h1 {
+      font-size: 1.6em;
+    }
+    
+    .content {
+      padding: 30px 20px;
+    }
+    
+    .section h2 {
+      font-size: 1.1em;
+    }
+  }
+</style>
 </head>
-<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
-<!-- Header Section -->
-<header class="sticky top-0 z-40 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10">
-<div class="flex items-center justify-between px-6 py-4">
-<h1 class="text-xl font-bold tracking-tight uppercase text-primary mx-auto">Menu del restaurante</h1>
-</div>
-</header>
-<main class="px-6 py-8 pb-32">
-<!-- Hero Title -->
-<div class="mb-10 text-center">
-<p class="text-xs font-bold tracking-[0.2em] uppercase text-primary/60 mb-2">VERANO 2026</p>
-<h2 class="text-4xl font-light tracking-tight text-slate-900 dark:text-slate-100">La Colección Distintiva</h2>
-<div class="w-12 h-0.5 bg-primary mx-auto mt-6"></div>
-</div>
-<!-- Menu Grid -->
-<div class="grid grid-cols-2 gap-x-4 gap-y-10">
-<!-- Item 1 -->
-<div class="flex flex-col group">
-<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-4">
-<img alt="Gourmet steak dish" class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" data-alt="Exquisite medium-rare wagyu steak with microgreens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3Y3a0uW3_5e5r39bTZDXxfp8lddfYGSs-btPbsDrB5B-YwqVzoFemMzECGq3_6dpsQqEHw-O0uWA9RxuWNUDTRBbc1po9qxnSv32MWF9axEK6LlyVBMCGqNZSp1jdC1RPgZgxdsJ2j4k4IS2hoyKfv-TkC7V_Z01ssfB6Qp1A7RsPTl1NqNFQagBrAWz_HnIlal-YQoqOCjLx0OxEdmKHskfR2GCm5ojzWDROd0mEEB0NFPSK3a4K-ANXUYMse0yLMcvuyB8GUB2a"/>
-</div>
-<div class="flex flex-col gap-1">
-<h3 class="text-sm font-medium tracking-tight text-slate-900 dark:text-slate-100 uppercase">RIBEYE WAGYU</h3>
-<p class="text-xs text-primary font-semibold">$85.00</p>
-</div>
-</div>
-<!-- Item 2 -->
-<div class="flex flex-col group">
-<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-4">
-<img alt="Truffle pasta" class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" data-alt="Handcrafted truffle pasta with shaved parmesan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChszaYnAOjF6DT6PuxPNXgGUy_eXd-LIIW0OXo49ESEQOoJ2slicrwztA5VMNCXx6stnlzdqHP2DvcvWh6mvSpH8cnnU_ldAOima9YjlR-4K7TGsmwK3ZsUT0_m4Kyth2shqhXbyByAHryZidWYaOQVeSws_bOUuNMgt69KOPuSwTDuXiYLZuGx9sD9hg-hGQ69oHi71q4yo-zB4hSVEy8b4IIocTcG8K_afnU_cbM2oTql50vZIx2abxOEeG83xxdMo0-NV8ATwAf"/>
-</div>
-<div class="flex flex-col gap-1">
-<h3 class="text-sm font-medium tracking-tight text-slate-900 dark:text-slate-100 uppercase">TAGLIATELLE DE TRUFA NEGRA</h3>
-<p class="text-xs text-primary font-semibold">$42.00</p>
-</div>
-</div>
-<!-- Item 3 -->
-<div class="flex flex-col group">
-<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-4">
-<img alt="Fine dining dessert" class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" data-alt="Deconstructed chocolate dome dessert with gold leaf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfE2dy18QmTvcgzRBmRRv-gDE16pKpsxgG66N5kIc4LfFLrGRaKQ8EuLs29THpM_KyOod8dRF5C05fey_apFmYnjySc7Clt84-NTP0hdkDqD9Y8thhk6o1bsQ1Jfwytj1TK6Ap3tKtsm6ErYoGw8BuSqBbwcDiwkXj4Pt2Njb1R3vN8T0PUZlPCHGxVvse_PeNz8oyjbvlYtCyygSXqg1Wx1KRfMDpz8sCjI5qMATO08RLs-IddFz4eB5JnHkUSuw3NasJwvsCRwWa"/>
-</div>
-<div class="flex flex-col gap-1">
-<h3 class="text-sm font-medium tracking-tight text-slate-900 dark:text-slate-100 uppercase">CHOCOLATE GRAND CRU</h3>
-<p class="text-xs text-primary font-semibold">$24.00</p>
-</div>
-</div>
-<!-- Item 4 -->
-<div class="flex flex-col group">
-<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-4">
-<img alt="Seafood dish" class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" data-alt="Pan-seared Atlantic salmon with asparagus tips" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfumeZc6Z-1PqweYS4N1FzGLYUaORAKv5oVqST7kQxH8vf3F77Nzvuofvz2goCUz34C_z7bo_w4o7jB8IdUnzhLikL4DN9C5RxsX3_K8iKOmXO9FY1TW-lSGtrdUX7ZV9p_sLlFduDRr3x4Dv6HgxphxgWftNnRpjp34VuDeS95KvMeeDn5meKz0J6w4QGrubhFlBFQO57vPmvigyFzs2z3_8blx0Q_WNt_RGduLr_cUR0Mvay-_PElZtAk6O0JaRsoMmFy0qbwKa_"/>
-</div>
-<div class="flex flex-col gap-1">
-<h3 class="text-sm font-medium tracking-tight text-slate-900 dark:text-slate-100 uppercase">SALMÓN DE LA CASA</h3>
-<p class="text-xs text-primary font-semibold">$38.00</p>
-</div>
-</div>
-<!-- Item 5 -->
-<div class="flex flex-col group">
-<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-4">
-<img alt="Lobster dish" class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" data-alt="Butter poached lobster tail with lemon zest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4iuYSYy2x_fxzNJ6u9o_Rs7Ll2iwzVTIJqjkfp3ebIvZ9vYPUAqhpj_oYmkG8AOvmLPirorR6-voA7slLSUvY-laf-lhxmDC9RQYyr1fIC69QYRL34pBOO7Xoq9Iah60XpshOv-oaJoLSR2EcimdchtxHODZsbG2zyrDpkF_v47fcKOaEwIwneCvwpWjU_zjSG1BzLf0PD-xV0ICJ_CfeK3NvKK5FtHHIPGf-LPK_ERIsGVnEzvuoJJhf2aScSJmSi7PGc7S08kSF"/>
-</div>
-<div class="flex flex-col gap-1">
-<h3 class="text-sm font-medium tracking-tight text-slate-900 dark:text-slate-100 uppercase">LANGOSTA DEL ATLÁNTICO</h3>
-<p class="text-xs text-primary font-semibold">$64.00</p>
-</div>
-</div>
-<!-- Item 6 -->
-<div class="flex flex-col group">
-<div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 mb-4">
-<img alt="Healthy organic salad" class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110" data-alt="Artisanal garden salad with heirloom tomatoes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3UHEGjmq-H3U6NlMjczH_Ws3B1tnU4L9Fu8Ers4uAlSrz-2PToZYDIlhUimH-o-bZtB4MNg8yDki_VJiUgYr45-ZVPBortxk96UP6I_NeP2q22gtWmTI2i0LCD5u1Ja-td55qIdnGwGmepnL9UDr-CctXVyYBn4tY_gP1BU0po5d6idyopZnwe1m6XDrpu5Y8rHwrD9exZhXc4So_85HRkDFG2kynOFZAP3QoNdNXU4lX93iyx4dgu15E-fmnzJ6QXrOl5fNJCNyx"/>
-</div>
-<div class="flex flex-col gap-1">
-<h3 class="text-sm font-medium tracking-tight text-slate-900 dark:text-slate-100 uppercase">ENSALADA DE LA HUERTA</h3>
-<p class="text-xs text-primary font-semibold">$22.00</p>
-</div>
-</div>
-</div>
-</main>
-<!-- Floating Action Button -->
-<div class="fixed bottom-28 left-0 right-0 flex justify-center z-50 pointer-events-none">
-<button class="pointer-events-auto flex items-center gap-2 px-6 py-3 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-primary/20 text-slate-900 dark:text-slate-100 font-medium text-sm ios-shadow group">
-<span class="material-symbols-outlined text-primary text-xl">restaurant_menu</span>
-<span class="tracking-wide uppercase text-xs font-bold">CATEGORÍAS</span>
-</button>
-</div>
-<!-- Bottom Navigation -->
-<nav class="fixed bottom-0 left-0 right-0 z-50 bg-background-light dark:bg-background-dark border-t border-primary/10">
-<div class="flex items-center justify-around h-20 px-4">
-<a class="flex flex-col items-center gap-1 text-primary" href="#">
-<span class="material-symbols-outlined fill-current">home</span>
-<span class="text-[10px] font-bold uppercase tracking-wider">INICIO</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
-<span class="material-symbols-outlined">explore</span>
-<span class="text-[10px] font-bold uppercase tracking-wider">MENÚ</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
-<span class="material-symbols-outlined">bookmark</span>
-<span class="text-[10px] font-bold uppercase tracking-wider">GUARDADOS</span>
-</a>
-<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
-<span class="material-symbols-outlined">person</span>
-<span class="text-[10px] font-bold uppercase tracking-wider">PERFIL</span>
-</a>
-</div>
-</nav>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎨 Visualizador HTML</h1>
+      <p>Crea, edita y exporta interfaces web en tiempo real</p>
+    </header>
+    
+    <div class="content">
+      <div class="section">
+        <h2>👋 ¡Bienvenido!</h2>
+        <p>Esta es una herramienta profesional para visualizar y exportar código HTML y CSS. En el panel izquierdo puedes escribir tu código, y verás una vista previa en tiempo real.</p>
+      </div>
+      
+      <div class="section">
+        <h2>🚀 Cómo Comenzar</h2>
+        <ul class="feature-list">
+          <li>Escribe tu HTML o CSS en el editor izquierdo</li>
+          <li>Observa los cambios en tiempo real a la derecha</li>
+          <li>Selecciona una resolución preestablecida en la barra superior</li>
+          <li>Exporta tu diseño como PNG de alta calidad</li>
+        </ul>
+      </div>
+      
+      <div class="section">
+        <h2>💡 Ejemplo Básico</h2>
+        <p>Prueba con este código:</p>
+        <div class="example-code">&lt;div style="text-align: center; padding: 40px;"&gt;
+  &lt;h1 style="color: #667eea; font-size: 2em;"&gt;
+    ¡Hola Mundo!
+  &lt;/h1&gt;
+  &lt;p style="color: #666; font-size: 1.1em;"&gt;
+    Edita el código para crear tu propio contenido
+  &lt;/p&gt;
+&lt;/div&gt;</div>
+      </div>
+      
+      <div class="section">
+        <h2>📱 Resoluciones</h2>
+        <p>La barra de herramientas incluye resoluciones preestablecidas para diferentes dispositivos:</p>
+        <ul class="feature-list">
+          <li>iPhone 12 (390×844)</li>
+          <li>iPad 10 (820×1180)</li>
+          <li>Desktop HD (1280×720)</li>
+          <li>Custom - Define tus propias dimensiones</li>
+        </ul>
+      </div>
+      
+      <div class="section">
+        <h2>🖼️ Exportar como PNG</h2>
+        <p>Una vez que tengas tu diseño listo:</p>
+        <ol style="list-style-position: inside; color: #555;">
+          <li style="margin-bottom: 8px;">Selecciona la resolución deseada</li>
+          <li style="margin-bottom: 8px;">Haz clic en el botón "Exportar"</li>
+          <li>Se descargará una imagen PNG de tu diseño</li>
+        </ol>
+      </div>
+      
+      <div class="tip-box">
+        <strong>💡 Tip:</strong> Puedes incluir CSS inline en tu HTML para estilar los elementos sin necesidad de etiquetas <code>&lt;style&gt;</code>.
+      </div>
+      
+      <div class="section">
+        <h2>✨ Características</h2>
+        <ul class="feature-list">
+          <li>Editor de código con sintaxis highlighting</li>
+          <li>Vista previa en vivo e instantánea</li>
+          <li>Soporte para múltiples resoluciones</li>
+          <li>Exportación a PNG de alta calidad</li>
+          <li>Interfaz responsiva y moderna</li>
+          <li>Sin depender de internet para procesar</li>
+        </ul>
+      </div>
+      
+      <div class="section">
+        <h2>🔒 Seguridad</h2>
+        <p>Tu código se ejecuta en un sandbox seguro. No se envía a servidores externos sin tu consentimiento, excepto al exportar como PNG.</p>
+      </div>
+    </div>
+    
+    <footer>
+      <p>Visualizador HTML Dinámico • Diseñado para crear y prototipar interfaces rápidamente</p>
+      <p style="margin-top: 10px;">Haz clic en "Nuevo" en la barra de herramientas para comenzar con este template nuevamente</p>
+    </footer>
+  </div>
 </body></html>
 `;
