@@ -9,143 +9,9 @@ interface PreviewPaneProps {
 
 export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
   ({ htmlContent, width, height }, ref) => {
-
-    // Construimos el HTML seguro anexando la librería html2canvas
-    // y el listener de exportación directamente al contenido del usuario.
-    const injectedLogic = `
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script>
-      function waitForResources() {
-        var promises = [];
-        if (document.fonts && document.fonts.ready) promises.push(document.fonts.ready);
-        var images = document.getElementsByTagName('img');
-        for (var i = 0; i < images.length; i++) {
-          if (!images[i].complete) {
-            promises.push(new Promise(function(resolve) {
-              images[i].onload = resolve;
-              images[i].onerror = resolve;
-            }));
-          }
-        }
-        var timeoutPromise = new Promise(function(resolve) { setTimeout(resolve, 1500); });
-        return Promise.race([Promise.all(promises), timeoutPromise]);
-      }
-
-      window.addEventListener('message', function(event) {
-        if (event.data && event.data.type === 'EXPORT') {
-          var format = event.data.format;
-          var width = event.data.width;
-          var height = event.data.height;
-          var scale = window.devicePixelRatio || 2;
-          
-          window.scrollTo(0, 0);
-          
-          waitForResources().then(function() {
-            setTimeout(function() {
-              window.scrollTo(0, 0); // Re-afirmar 0,0 por si acaso
-              try {
-                if (typeof html2canvas === 'undefined') throw new Error('html2canvas no se cargó.');
-                
-                var allEls = document.querySelectorAll('*');
-                var fixedData = {};
-                var markedEls = [];
-                
-                // Mapeo PRE-render: guardar estilos computados de todo elemento fixed
-                for (var i = 0; i < allEls.length; i++) {
-                  var el = allEls[i];
-                  var cs = window.getComputedStyle(el);
-                  if (cs.position === 'fixed') {
-                    var id = 'h2c_fix_' + i;
-                    // CAPTURAMOS LA POSICIÓN REAL EN PANTALLA
-                    var rect = el.getBoundingClientRect(); 
-                    el.setAttribute('data-h2c-id', id);
-                    markedEls.push(el);
-                    
-                    fixedData[id] = {
-                      top: rect.top, // Usamos la distancia desde el techo
-                      left: rect.left, // Usamos la distancia desde la izquierda
-                      width: rect.width,
-                      height: rect.height,
-                      zIndex: cs.zIndex,
-                      display: cs.display
-                    };
-                  }
-                }
-                
-                html2canvas(document.body, {
-                  scale: scale,
-                  useCORS: true,
-                  allowTaint: true,
-                  width: width,
-                  height: height,
-                  windowWidth: width,
-                  windowHeight: height,
-                  scrollX: 0,
-                  scrollY: 0,
-                  backgroundColor: null,
-                  onclone: function(clonedDoc) {
-                    // Forzar dimensiones del viewport en el clon para que bottom/right funcionen
-                    clonedDoc.documentElement.style.setProperty('width', width + 'px', 'important');
-                    clonedDoc.documentElement.style.setProperty('height', height + 'px', 'important');
-                    clonedDoc.body.style.setProperty('width', width + 'px', 'important');
-                    clonedDoc.body.style.setProperty('height', height + 'px', 'important');
-                    clonedDoc.body.style.setProperty('margin', '0', 'important');
-                    clonedDoc.body.style.setProperty('padding', '0', 'important');
-                    clonedDoc.body.style.setProperty('position', 'relative', 'important');
-                    clonedDoc.body.style.setProperty('overflow', 'hidden', 'important');
-
-                    var clonedFixed = clonedDoc.querySelectorAll('[data-h2c-id]');
-                    for (var j = 0; j < clonedFixed.length; j++) {
-                      var cEl = clonedFixed[j];
-                      var data = fixedData[cEl.getAttribute('data-h2c-id')];
-                      if (data) {
-                        cEl.style.setProperty('position', 'absolute', 'important');
-                        
-                        // FORZAMOS LA POSICIÓN POR ARRIBA (TOP) PARA "CONGELARLO"
-                        cEl.style.setProperty('top', data.top + 'px', 'important');
-                        cEl.style.setProperty('left', data.left + 'px', 'important');
-                        
-                        // ANULAMOS EL BOTTOM/RIGHT PARA QUE NO HAGAN CONFLICTO
-                        cEl.style.setProperty('bottom', 'auto', 'important');
-                        cEl.style.setProperty('right', 'auto', 'important');
-                        
-                        cEl.style.setProperty('width', data.width + 'px', 'important');
-                        cEl.style.setProperty('height', data.height + 'px', 'important');
-                        cEl.style.setProperty('z-index', data.zIndex, 'important');
-                        cEl.style.setProperty('margin', '0', 'important');
-                        cEl.style.setProperty('transform', 'none', 'important');
-                        
-                        if (cEl.parentNode !== clonedDoc.body) {
-                          clonedDoc.body.appendChild(cEl);
-                        }
-                      }
-                    }
-                  }
-                }).then(function(canvas) {
-                  cleanup();
-                  var dataUrl = format === 'jpg' ? canvas.toDataURL('image/jpeg', 1.0) : canvas.toDataURL('image/png');
-                  window.parent.postMessage({ type: 'EXPORT_RESULT', dataUrl: dataUrl, pixelRatio: scale }, '*');
-                }).catch(function(error) {
-                  cleanup();
-                  window.parent.postMessage({ type: 'EXPORT_ERROR', error: error.toString() }, '*');
-                });
-                
-                function cleanup() {
-                  for (var k = 0; k < markedEls.length; k++) {
-                    markedEls[k].removeAttribute('data-h2c-id');
-                  }
-                }
-              } catch (err) {
-                window.parent.postMessage({ type: 'EXPORT_ERROR', error: err.toString() }, '*');
-              }
-            }, 1000); 
-          });
-        }
-      });
-    </script>
-  `;
-
-    const srcDoc = htmlContent + injectedLogic;
+    // El HTML se muestra directamente en el iframe sin scripts inyectados
+    // La exportación se maneja por Puppeteer en el servidor
+    const srcDoc = htmlContent;
 
     return (
       <div className="preview-panel">
@@ -165,3 +31,5 @@ export const PreviewPane = forwardRef<HTMLIFrameElement, PreviewPaneProps>(
     );
   }
 );
+
+PreviewPane.displayName = 'PreviewPane';
